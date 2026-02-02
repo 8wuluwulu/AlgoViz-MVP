@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz - Bubble Sort</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Визуализация сортировки пузырьком</h1>
+
+    <div class="container">
+        <div class="input-section">
+            <label for="arrayInput">Введите массив (через запятую):</label>
+            <input type="text" id="arrayInput" placeholder="5,2,8,1,9" value="5,2,8,1,9">
+            <button id="runButton" onclick="runSort()">Запустить</button>
+        </div>
+
+        <div id="stepDescription"></div>
+
+        <div id="visualization" class="visualization"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

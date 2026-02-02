@@ -66,4 +66,26 @@ public class AlgorithmsController : ControllerBase
         }
         return steps;
     }
+
+    /* private List<StepModel> BubbleSort(int[] array)
+    {
+        List<StepModel> steps = new List<StepModel>();
+        var arr = (int[])array.Clone();
+        int stepNumber = 0;
+        var firstStep = StepModel
+        {
+            StepNumber = stepNumber++,
+            Array = (int[])arr.Clone(),
+            Description = "Начальное состояние массива.",
+            ComparedIndices = new int[] {},
+            SwappedIndices = new int[] {},
+        };
+        steps.Add(firstStep);
+        
+        for (int i = 0; i < arr.Length - 1; i++) {
+            for (int j = 0; j < arr.Length - 1 - i; j++) {
+                
+            }
+        }
+    } */
 }

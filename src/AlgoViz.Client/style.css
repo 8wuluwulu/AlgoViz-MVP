@@ -1,0 +1,93 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.input-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#arrayInput {
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 30px;
+    margin-left: 10px;
+    font-size: 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+#stepDescription {
+    text-align: center;
+    font-size: 18px;
+    margin: 20px 0;
+    min-height: 30px;
+    color: #555;
+}
+
+.visualization {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    min-height: 100px;
+    align-items: flex-end;
+}
+
+.array-item {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2196F3;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.compared {
+    background: #FF9800;
+    transform: scale(1.1);
+}
+
+.swapped {
+    background: #4CAF50;
+    transform: scale(1.1);
+}
