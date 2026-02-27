@@ -7,9 +7,11 @@ namespace AlgoViz.Api.Controllers;
 public class AlgorithmsController : ControllerBase
 {
     private readonly ISortingService _sortingService;
-    public AlgorithmsController(ISortingService sortingService)
+    private readonly AppDbContext _context;
+    public AlgorithmsController(ISortingService sortingService, AppDbContext context)
     {
         _sortingService = sortingService;
+        _context = context;
     }
 
     [HttpGet]
@@ -22,6 +24,17 @@ public class AlgorithmsController : ControllerBase
         }
 
         List<StepModel> steps = await _sortingService.BubbleSortAsync(array);
+
+        var runHistory = new AlgorithmRun
+        {
+            AlgorithmName = "BubbleSort",
+            ArraySize = array.Length,
+            StepsCount = steps.Count
+        };
+
+        _context.AlgorithmRuns.Add(runHistory);
+        await _context.SaveChangesAsync();
+
         return Ok(steps);
     }
 }
