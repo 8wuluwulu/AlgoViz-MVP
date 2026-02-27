@@ -1,4 +1,4 @@
 public interface ISortingService
 {
-    List<StepModel> BubbleSort(int[] array);
+    Task<List<StepModel>> BubbleSortAsync(int[] array);
 }

@@ -14,14 +14,14 @@ public class AlgorithmsController : ControllerBase
 
     [HttpGet]
     [Route("bubble-sort")]
-    public IActionResult GetBubbleSortSteps([FromQuery]int[] array)
+    public async Task<IActionResult> GetBubbleSortSteps([FromQuery]int[] array)
     {
         if (array == null || array.Length == 0)
         {
             return BadRequest("Array is empty");
         }
 
-        List<StepModel> steps = _sortingService.BubbleSort(array);
+        List<StepModel> steps = await _sortingService.BubbleSortAsync(array);
         return Ok(steps);
     }
 }

@@ -1,6 +1,6 @@
 public class SortingService : ISortingService
 {
-    public List<StepModel> BubbleSort(int[] array)
+    public async Task<List<StepModel>> BubbleSortAsync(int[] array)
     {   
         List<StepModel> steps = new List<StepModel>();
         int[] arr = (int[])array.Clone();
@@ -50,6 +50,9 @@ public class SortingService : ISortingService
                 }
             }
         }
+
+        //TODO
+        await Task.Delay(10); // Позже будет сохранение в БД, пока просто делэй
         return steps;
     }
 }
