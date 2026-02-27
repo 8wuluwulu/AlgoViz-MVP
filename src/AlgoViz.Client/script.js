@@ -1,68 +1,94 @@
-const API_URL = 'http://localhost:5233/api/algorithms/bubble-sort';
+// ВАЖНО: Тебе нужно заменить порт 5000 на тот, на котором запускается твой ASP.NET Core API!
+// Увидеть свой порт можно в терминале после команды dotnet run
+const API_BASE_URL = 'http://localhost:5233'; 
 
-async function runSort() {
-    const input = document.getElementById('arrayInput').value;
-    const array = input.split(',').map(num => parseInt(num.trim()));
+const container = document.getElementById('visualization-container');
+const startBtn = document.getElementById('start-btn');
+const statusText = document.getElementById('status-text');
 
-    if (array.some(isNaN)) {
-        alert('Введите корректные числа!');
-        return;
-    }
+// Генерируем случайный массив
+const arraySize = 5;
+let initialArray = Array.from({length: arraySize}, () => Math.floor(Math.random() * 100) + 10);
 
-    // Отключаем кнопку
-    document.getElementById('runButton').disabled = true;
+// Отрисовка массива на экране
+function renderArray(array, comparedIndices = [], swappedIndices = []) {
+    container.innerHTML = ''; // Очищаем контейнер
+    
+    // Находим максимальное значение для вычисления процентов высоты столбиков
+    const maxVal = Math.max(...array);
 
-    try {
-        // Запрос к API
-        const response = await fetch(`${API_URL}?${array.map(n => `array=${n}`).join('&')}`);
-        const steps = await response.json();
+    array.forEach((value, index) => {
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+        
+        // Вычисляем высоту в процентах относительно максимального элемента
+        const heightPercent = (value / maxVal) * 100;
+        bar.style.height = `${heightPercent}%`;
 
-        // Показываем шаги
-        for (let step of steps) {
-            await visualizeStep(step);
-            await sleep(800);
+        // Раскрашиваем столбики в зависимости от действия
+        if (swappedIndices.includes(index)) {
+            bar.classList.add('swapped');
+        } else if (comparedIndices.includes(index)) {
+            bar.classList.add('compared');
         }
 
-        document.getElementById('stepDescription').textContent = '✅ Сортировка завершена!';
-
-    } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Ошибка подключения к API. Убедитесь что сервер запущен на localhost:5233');
-    } finally {
-        document.getElementById('runButton').disabled = false;
-    }
-}
-
-function visualizeStep(step) {
-    const container = document.getElementById('visualization');
-    const description = document.getElementById('stepDescription');
-
-    // Описание шага
-    description.textContent = `Шаг ${step.stepNumber}: ${step.description}`;
-
-    // Очищаем контейнер
-    container.innerHTML = '';
-
-    // Создаём блоки для каждого элемента
-    step.array.forEach((value, index) => {
-        const item = document.createElement('div');
-        item.className = 'array-item';
-        item.textContent = value;
-
-        // Подсветка сравниваемых
-        if (step.comparedIndices.includes(index)) {
-            item.classList.add('compared');
-        }
-
-        // Подсветка обменянных
-        if (step.swappedIndices.includes(index)) {
-            item.classList.add('swapped');
-        }
-
-        container.appendChild(item);
+        container.appendChild(bar);
     });
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+// Задержка для анимации
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function startSorting() {
+    startBtn.disabled = true;
+    
+    try {
+        statusText.innerText = "Запрос шагов у бэкенда...";
+        
+        // Формируем строку запроса (передаем массив в URL)
+        const queryString = initialArray.map(n => `array=${n}`).join('&');
+        const url = `${API_BASE_URL}/api/algorithms/bubble-sort?${queryString}`;
+
+        // Делаем HTTP запрос к твоему C# контроллеру
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+
+        const steps = await response.json();
+        
+        statusText.innerText = "Анимация...";
+        
+        // Воспроизводим шаги
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            statusText.innerText = step.description; // Выводим описание шага из C#
+            
+            renderArray(step.array, step.comparedIndices, step.swappedIndices);
+            
+            // Ждем 300мс перед следующим шагом
+            await sleep(300);
+        }
+        
+        statusText.innerText = "Сортировка завершена!";
+        // Перекрашиваем все в зеленый в конце
+        Array.from(container.children).forEach(bar => {
+            bar.className = 'bar sorted';
+        });
+
+    } catch (error) {
+        statusText.innerText = `Ошибка соединения с API: ${error.message}`;
+        console.error(error);
+    } finally {
+        startBtn.disabled = false;
+        // Генерируем новый массив для следующего запуска
+        initialArray = Array.from({length: arraySize}, () => Math.floor(Math.random() * 100) + 10);
+    }
 }
+
+// Первоначальная отрисовка
+renderArray(initialArray);
+
+// Привязка события к кнопке
+startBtn.addEventListener('click', startSorting);
