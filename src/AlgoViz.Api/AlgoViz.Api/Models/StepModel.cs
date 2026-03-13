@@ -5,4 +5,5 @@ public class StepModel
     public string Description { get; set; }
     public int[] ComparedIndices { get; set; }
     public int[] SwappedIndices { get; set; }
+    public int ActiveLine { get; set; }
 }

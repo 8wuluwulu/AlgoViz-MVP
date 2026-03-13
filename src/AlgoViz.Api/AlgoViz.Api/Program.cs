@@ -1,3 +1,4 @@
+using AlgoViz.Api.Services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services
 builder.Services.AddControllers();
-builder.Services.AddScoped<ISortingService, SortingService>();
+builder.Services.AddScoped<ISortingStrategy, BubbleSortStrategy>();
+builder.Services.AddScoped<ISortingStrategy, SelectionSortStrategy>();
+builder.Services.AddScoped<ISortingStrategy, QuickSortStrategy>();
+builder.Services.AddScoped<ISortingStrategy, MergeSortStrategy>();
+builder.Services.AddScoped<SortingFactory>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>

@@ -3,28 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoViz - Сортировка</title>
+    <title>AlgoViz - Визуализатор алгоритмов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Сортировка пузырьком</h1>
-        <p class="description">Проходит по массиву и меняет местами соседние элементы, если они стоят в неправильном порядке.</p>
+        <nav class="top-nav">
+            <a href="index.html" class="nav-link active">🎓 Режим обучения</a>
+            <a href="race.html" class="nav-link">🏎️ Режим гонки</a>
+        </nav>
+        <div class="header-info">
+            <h1 id="algo-title">Сортировка пузырьком</h1>
+            <p id="algo-desc" class="description">Проходит по массиву и меняет местами соседние элементы, если они стоят в неправильном порядке.</p>
+        </div>
         
         <div class="stats-panel">
-            <span>Элементов: <span id="el-count" class="highlight">15</span></span>
-            <span>Время: <span class="highlight">$O(n^2)$</span></span>
-            <span>Память: <span class="highlight">$O(1)$</span></span>
-        </div>
-
-        <div class="controls">
-            <button id="start-btn">Запустить визуализацию</button>
-            <p id="status-text">Ожидание запуска...</p>
-        </div>
-
-        <div id="visualization-container" class="visualization-container">
+            <div class="stat-box">
+                <span class="stat-label">Элементов</span>
+                <span id="el-count" class="stat-value highlight">15</span>
             </div>
+            <div class="stat-box">
+                <span class="stat-label">Время (Max)</span>
+                <span id="time-complexity" class="stat-value highlight">O(n²)</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Память</span>
+                <span id="space-complexity" class="stat-value highlight">O(1)</span>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label>Алгоритм</label>
+                    <select id="algorithmSelect" class="modern-select">
+                        <option value="bubble">Сортировка пузырьком</option>
+                        <option value="selection">Сортировка выбором</option>
+                        <option value="quick">Быстрая сортировка</option>
+                        <option value="merge">Сортировка слиянием</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="sizeSlider">Размер: <span id="sizeValue">15</span></label>
+                    <input type="range" id="sizeSlider" min="5" max="60" value="15" class="modern-slider">
+                </div>
+
+                <div class="control-group">
+                    <label for="speedSlider">Скорость: <span id="speedValue">300</span> мс</label>
+                    <input type="range" id="speedSlider" min="10" max="1000" value="300" step="10" class="modern-slider">
+                </div>
+            </div>
+            
+           <div class="action-row">
+                <button id="start-btn" class="glow-on-hover">1. Получить шаги с сервера</button>
+            </div>
+
+            <div class="player-controls">
+                <button id="btn-prev" class="player-btn" disabled>⏮ Назад</button>
+                <button id="btn-play-pause" class="player-btn" disabled>▶ Пуск</button>
+                <button id="btn-next" class="player-btn" disabled>Вперед ⏭</button>
+                <button id="btn-history" class="player-btn" style="border-color: var(--accent);">📊 История БД</button>
+            </div>
+        </div>
+
+        <div class="visualization-wrapper">
+            <p id="status-text">Выберите настройки и запустите алгоритм</p>
+    
+            <div class="viz-and-code-layout">
+                <div id="visualization-container" class="visualization-container"></div>
+        
+                <div class="code-panel">
+                    <pre id="code-block">
+                        </pre>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div id="history-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-history">&times;</span>
+        <h2>История запусков (PostgreSQL)</h2>
+        <div class="table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Алгоритм</th>
+                        <th>Размер</th>
+                        <th>Шагов</th>
+                        <th>Время запуска</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
     <script src="script.js"></script>
 </body>

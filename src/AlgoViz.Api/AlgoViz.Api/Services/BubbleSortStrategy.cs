@@ -1,6 +1,8 @@
-public class SortingService : ISortingService
+public class BubbleSortStrategy : ISortingStrategy
 {
-    public async Task<List<StepModel>> BubbleSortAsync(int[] array)
+
+    public string Name => "bubble";
+    public async Task<List<StepModel>> SortAsync(int[] array)
     {   
         List<StepModel> steps = new List<StepModel>();
         int[] arr = (int[])array.Clone();
@@ -11,7 +13,8 @@ public class SortingService : ISortingService
             Array = (int[])arr.Clone(),
             Description = "Начально состояние массива.",
             ComparedIndices = new int[] { },
-            SwappedIndices = new int[] { }
+            SwappedIndices = new int[] { },
+            ActiveLine = 0
         };
         steps.Add(step);
         for (int i = 0; i < arr.Length - 1; i++)
@@ -24,7 +27,8 @@ public class SortingService : ISortingService
                     Array = (int[])arr.Clone(),
                     Description = $"Сравниваем элементы {arr[j]} и {arr[j + 1]}.",
                     ComparedIndices = new int[] { j, j + 1 },
-                    SwappedIndices = new int[] {}
+                    SwappedIndices = new int[] {},
+                    ActiveLine = 2
                 };
                 steps.Add(compareStep);
                 if (arr[j] > arr[j + 1])
@@ -44,15 +48,13 @@ public class SortingService : ISortingService
                         Array = (int[])arr.Clone(),
                         Description = $"Меняем элементы {valLeft} и {valRight}.",
                         ComparedIndices = new int[] { },
-                        SwappedIndices = new int[] { j, j + 1 }
+                        SwappedIndices = new int[] { j, j + 1 },
+                        ActiveLine = 3
                     };
                     steps.Add(swapStep);
                 }
             }
         }
-
-        //TODO
-        await Task.Delay(10); // Позже будет сохранение в БД, пока просто делэй
         return steps;
     }
 }
