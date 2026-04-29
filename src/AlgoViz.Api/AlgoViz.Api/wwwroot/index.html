@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AlgoViz — интерактивный визуализатор алгоритмов сортировки с пошаговой анимацией и подсветкой кода.">
+    <title>AlgoViz — Визуализатор алгоритмов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app" id="app">
+
+        <!-- Ambient background glow -->
+        <div class="ambient-glow"></div>
+
+        <!-- Top Navigation -->
+        <header class="top-bar" id="top-bar">
+            <div class="top-bar-left">
+                <div class="logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="14" width="4" height="8" rx="1.5" fill="#6366F1"/>
+                        <rect x="8" y="8" width="4" height="14" rx="1.5" fill="#818CF8"/>
+                        <rect x="14" y="4" width="4" height="18" rx="1.5" fill="#6366F1"/>
+                        <rect x="20" y="10" width="4" height="12" rx="1.5" fill="#818CF8" opacity="0.6"/>
+                    </svg>
+                    <span class="logo-text">AlgoViz</span>
+                </div>
+            </div>
+            <div class="top-bar-center">
+                <div class="algo-badge" id="algo-badge">
+                    <span class="badge-dot"></span>
+                    <span id="algo-title">Сортировка пузырьком</span>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="complexity-pills">
+                    <span class="pill" data-tooltip="Временная сложность (worst-case)">
+                        <span class="pill-label">Время</span>
+                        <span class="pill-value" id="time-complexity">O(n²)</span>
+                    </span>
+                    <span class="pill" data-tooltip="Пространственная сложность">
+                        <span class="pill-label">Память</span>
+                        <span class="pill-value" id="space-complexity">O(1)</span>
+                    </span>
+                    <span class="pill" data-tooltip="Количество элементов в массиве">
+                        <span class="pill-label">Размер</span>
+                        <span class="pill-value" id="el-count">15</span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Left Panel (Controls) -->
+            <aside class="control-panel glass-card" id="control-panel">
+                <div class="panel-section">
+                    <h3 class="section-title">Алгоритм</h3>
+                    <div class="select-wrapper">
+                        <select id="algorithmSelect" class="custom-select">
+                            <option value="bubble">Сортировка пузырьком</option>
+                            <option value="selection">Сортировка выбором</option>
+                            <option value="quick">Быстрая сортировка</option>
+                            <option value="merge">Сортировка слиянием</option>
+                        </select>
+                        <svg class="select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M4.427 6.427a.75.75 0 011.06-.073L8 8.57l2.513-2.216a.75.75 0 01.994 1.123l-3 2.646a.75.75 0 01-.994 0l-3-2.646a.75.75 0 01-.086-1.077z"/>
+                        </svg>
+                    </div>
+                    <p id="algo-desc" class="algo-description">Проходит по массиву и меняет местами соседние элементы, если они стоят в неправильном порядке.</p>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">Параметры</h3>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label for="sizeSlider">Размер массива</label>
+                            <span class="slider-badge" id="sizeValue">15</span>
+                        </div>
+                        <input type="range" id="sizeSlider" min="5" max="60" value="15" class="custom-slider">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label for="speedSlider">Задержка</label>
+                            <span class="slider-badge" id="speedValue">300</span>
+                            <span class="slider-unit">мс</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="10" max="1000" value="300" step="10" class="custom-slider">
+                    </div>
+                </div>
+
+                <div class="panel-section panel-actions">
+                    <button id="start-btn" class="btn btn-primary" data-tooltip="Отправить массив на сервер для расчёта шагов">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+                        Получить шаги
+                    </button>
+
+                    <div class="player-row">
+                        <button id="btn-prev" class="btn btn-icon" disabled data-tooltip="Предыдущий шаг">⏮</button>
+                        <button id="btn-play-pause" class="btn btn-icon btn-play" disabled data-tooltip="Пуск / Пауза">▶</button>
+                        <button id="btn-next" class="btn btn-icon" disabled data-tooltip="Следующий шаг">⏭</button>
+                        <div class="player-divider"></div>
+                        <button id="btn-mute" class="btn btn-icon" data-tooltip="Вкл/Выкл звук">🔊</button>
+                        <button id="btn-history" class="btn btn-icon" data-tooltip="История запусков из PostgreSQL">📊</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center (Visualization) -->
+            <section class="viz-section">
+                <!-- Progress bar -->
+                <div class="progress-track" id="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+
+                <div class="viz-card glass-card">
+                    <div class="viz-header">
+                        <p id="status-text" class="status-text">Настройте параметры и нажмите ▶</p>
+                    </div>
+                    <div id="visualization-container" class="visualization-container">
+                        <!-- Ghost bars (empty state) rendered by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel (Code) -->
+            <aside class="code-section glass-card" id="code-section">
+                <div class="code-header">
+                    <div class="code-tab">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                        <span class="code-filename">algorithm.cs</span>
+                    </div>
+                </div>
+                <div class="code-body">
+                    <div class="line-numbers" id="line-numbers"></div>
+                    <pre id="code-block" class="code-content"></pre>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Status Bar -->
+        <footer class="status-bar" id="status-bar">
+            <span class="status-left">
+                <span class="status-dot online"></span>
+                Сервер: localhost:5233
+            </span>
+            <span class="status-center" id="step-counter"></span>
+            <span class="status-right">AlgoViz v2.0</span>
+        </footer>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-header">
+                <h2>История запусков</h2>
+                <button class="btn btn-icon modal-close" id="close-history">✕</button>
+            </div>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Алгоритм</th>
+                            <th>Размер</th>
+                            <th>Шагов</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

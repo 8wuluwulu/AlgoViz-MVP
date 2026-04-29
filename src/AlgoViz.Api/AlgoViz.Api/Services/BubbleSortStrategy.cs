@@ -1,60 +1,59 @@
+namespace AlgoViz.Api.Services;
+
 public class BubbleSortStrategy : ISortingStrategy
 {
-
     public string Name => "bubble";
-    public async Task<List<StepModel>> SortAsync(int[] array)
-    {   
-        List<StepModel> steps = new List<StepModel>();
+
+    public List<StepModel> Sort(int[] array)
+    {
+        var steps = new List<StepModel>();
         int[] arr = (int[])array.Clone();
         int stepNumber = 0;
-        var step = new StepModel
+
+        steps.Add(new StepModel
         {
             StepNumber = stepNumber++,
             Array = (int[])arr.Clone(),
-            Description = "Начально состояние массива.",
-            ComparedIndices = new int[] { },
-            SwappedIndices = new int[] { },
+            Description = "Начальное состояние массива.",
+            ComparedIndices = Array.Empty<int>(),
+            SwappedIndices = Array.Empty<int>(),
             ActiveLine = 0
-        };
-        steps.Add(step);
+        });
+
         for (int i = 0; i < arr.Length - 1; i++)
         {
             for (int j = 0; j < arr.Length - 1 - i; j++)
             {
-                var compareStep = new StepModel
+                steps.Add(new StepModel
                 {
                     StepNumber = stepNumber++,
                     Array = (int[])arr.Clone(),
                     Description = $"Сравниваем элементы {arr[j]} и {arr[j + 1]}.",
-                    ComparedIndices = new int[] { j, j + 1 },
-                    SwappedIndices = new int[] {},
+                    ComparedIndices = new[] { j, j + 1 },
+                    SwappedIndices = Array.Empty<int>(),
                     ActiveLine = 2
-                };
-                steps.Add(compareStep);
+                });
+
                 if (arr[j] > arr[j + 1])
                 {
-                    // Запоминаем значения элементов до обмена.
                     int valLeft = arr[j];
                     int valRight = arr[j + 1];
-                    
-                    // Меняем элементы
-                    int temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
 
-                    var swapStep = new StepModel
+                    (arr[j], arr[j + 1]) = (arr[j + 1], arr[j]);
+
+                    steps.Add(new StepModel
                     {
                         StepNumber = stepNumber++,
                         Array = (int[])arr.Clone(),
                         Description = $"Меняем элементы {valLeft} и {valRight}.",
-                        ComparedIndices = new int[] { },
-                        SwappedIndices = new int[] { j, j + 1 },
+                        ComparedIndices = Array.Empty<int>(),
+                        SwappedIndices = new[] { j, j + 1 },
                         ActiveLine = 3
-                    };
-                    steps.Add(swapStep);
+                    });
                 }
             }
         }
+
         return steps;
     }
 }

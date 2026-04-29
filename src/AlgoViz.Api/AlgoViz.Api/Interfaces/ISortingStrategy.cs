@@ -1,5 +1,7 @@
+namespace AlgoViz.Api.Interfaces;
+
 public interface ISortingStrategy
 {
-    string Name {get;}
-    Task<List<StepModel>> SortAsync(int[] array);
+    string Name { get; }
+    List<StepModel> Sort(int[] array);
 }
