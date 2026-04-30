@@ -29,10 +29,22 @@ const ALGORITHMS = {
         desc: "Проходит по массиву и меняет местами соседние элементы, если они стоят в неправильном порядке. Самый простой, но медленный алгоритм.",
         time: "O(n²)", space: "O(1)",
         code: [
-            "for (int i = 0; i < arr.Length - 1; i++)",
-            "  for (int j = 0; j < arr.Length - i - 1; j++)",
-            "    if (arr[j] > arr[j + 1])",
-            "      Swap(ref arr[j], ref arr[j + 1]);"
+            "public void BubbleSort(int[] arr)",
+            "{",
+            "    int n = arr.Length;",
+            "    for (int i = 0; i < n - 1; i++)",
+            "    {",
+            "        for (int j = 0; j < n - i - 1; j++)",
+            "        {",
+            "            if (arr[j] > arr[j + 1])",
+            "            {",
+            "                int temp = arr[j];",
+            "                arr[j] = arr[j + 1];",
+            "                arr[j + 1] = temp;",
+            "            }",
+            "        }",
+            "    }",
+            "}"
         ]
     },
     selection: {
@@ -40,11 +52,25 @@ const ALGORITHMS = {
         desc: "Ищет минимальный элемент в неотсортированной части и меняет его с первым неотсортированным элементом.",
         time: "O(n²)", space: "O(1)",
         code: [
-            "for (int i = 0; i < arr.Length - 1; i++)",
-            "  int minIndex = i;",
-            "  for (int j = i + 1; j < arr.Length; j++)",
-            "    if (arr[j] < arr[minIndex]) minIndex = j;",
-            "  if (minIndex != i) Swap(ref arr[i], ref arr[minIndex]);"
+            "public void SelectionSort(int[] arr)",
+            "{",
+            "    int n = arr.Length;",
+            "    for (int i = 0; i < n - 1; i++)",
+            "    {",
+            "        int minIndex = i;",
+            "        for (int j = i + 1; j < n; j++)",
+            "        {",
+            "            if (arr[j] < arr[minIndex])",
+            "                minIndex = j;",
+            "        }",
+            "        if (minIndex != i)",
+            "        {",
+            "            int temp = arr[minIndex];",
+            "            arr[minIndex] = arr[i];",
+            "            arr[i] = temp;",
+            "        }",
+            "    }",
+            "}"
         ]
     },
     quick: {
@@ -52,11 +78,31 @@ const ALGORITHMS = {
         desc: "Выбирает 'опорный' элемент, переносит всё меньшее влево, а большее вправо. Затем рекурсивно повторяет.",
         time: "O(n log n)", space: "O(log n)",
         code: [
-            "int pivot = arr[right];",
-            "for (int j = left; j < right; j++)",
-            "  if (arr[j] <= pivot)",
-            "    Swap(ref arr[i], ref arr[j]);",
-            "Swap(ref arr[i + 1], ref arr[right]);"
+            "public void QuickSort(int[] arr, int left, int right)",
+            "{",
+            "    if (left < right)",
+            "    {",
+            "        int pivotIndex = Partition(arr, left, right);",
+            "        QuickSort(arr, left, pivotIndex - 1);",
+            "        QuickSort(arr, pivotIndex + 1, right);",
+            "    }",
+            "}",
+            "",
+            "private int Partition(int[] arr, int left, int right)",
+            "{",
+            "    int pivot = arr[right];",
+            "    int i = left - 1;",
+            "    for (int j = left; j < right; j++)",
+            "    {",
+            "        if (arr[j] <= pivot)",
+            "        {",
+            "            i++;",
+            "            int temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;",
+            "        }",
+            "    }",
+            "    int temp1 = arr[i + 1]; arr[i + 1] = arr[right]; arr[right] = temp1;",
+            "    return i + 1;",
+            "}"
         ]
     },
     merge: {
@@ -64,12 +110,31 @@ const ALGORITHMS = {
         desc: "Рекурсивно делит массив пополам, затем сливает обратно в правильном порядке, используя дополнительную память.",
         time: "O(n log n)", space: "O(n)",
         code: [
-            "int mid = left + (right - left) / 2;",
-            "MergeSort(arr, left, mid);",
-            "MergeSort(arr, mid + 1, right);",
-            "if (temp[iL] <= temp[iR])",
-            "  arr[cur] = temp[iL];",
-            "else arr[cur] = temp[iR];"
+            "public void MergeSort(int[] arr, int left, int right)",
+            "{",
+            "    if (left < right)",
+            "    {",
+            "        int middle = left + (right - left) / 2;",
+            "        MergeSort(arr, left, middle);",
+            "        MergeSort(arr, middle + 1, right);",
+            "        Merge(arr, left, middle, right);",
+            "    }",
+            "}",
+            "",
+            "private void Merge(int[] arr, int left, int middle, int right)",
+            "{",
+            "    int[] temp = new int[right - left + 1];",
+            "    int i = left, j = middle + 1, k = 0;",
+            "",
+            "    while (i <= middle && j <= right)",
+            "    {",
+            "        if (arr[i] <= arr[j]) temp[k++] = arr[i++];",
+            "        else temp[k++] = arr[j++];",
+            "    }",
+            "    while (i <= middle) temp[k++] = arr[i++];",
+            "    while (j <= right) temp[k++] = arr[j++];",
+            "    for (int p = 0; p < temp.Length; p++) arr[left + p] = temp[p];",
+            "}"
         ]
     }
 };
@@ -196,6 +261,43 @@ function updateProgress() {
     DOM.stepCounter.textContent = `${currentStepIndex + 1} / ${algorithmSteps.length}`;
 }
 
+// ── Active Line Mapping (backend ID → new code line index) ──
+const LINE_MAP = {
+    bubble:    { 0: 0, 2: 7, 3: 9 },
+    selection: { 0: 0, 3: 8, 4: 13 },
+    quick:     { 0: 0, 2: 16, 3: 19, 4: 23 },
+    merge:     { 0: 0, 3: 18, 4: 19, 5: 20 }
+};
+
+// ── Syntax Highlighting ─────────────────────────────
+function applySyntaxHighlighting(text) {
+    // Escape HTML first
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // Keywords (blue)
+    html = html.replace(
+        /\b(public|void|int|for|if|else|new|private|return|ref|while)\b/g,
+        '<span class="hljs-keyword">$1</span>'
+    );
+
+    // Type names (teal)
+    html = html.replace(
+        /\b(Length|string|bool|var)\b/g,
+        '<span class="hljs-type">$1</span>'
+    );
+
+    // Numbers (green)
+    html = html.replace(
+        /\b(\d+)\b/g,
+        '<span class="hljs-number">$1</span>'
+    );
+
+    return html;
+}
+
 // ── Code Panel ──────────────────────────────────────
 function updateCodePanel(key) {
     const lines = ALGORITHMS[key].code;
@@ -212,7 +314,7 @@ function updateCodePanel(key) {
         const div = document.createElement('div');
         div.className = 'code-line';
         div.id = `code-line-${i}`;
-        div.textContent = line;
+        div.innerHTML = applySyntaxHighlighting(line);
         DOM.codeBlock.appendChild(div);
     });
 }
@@ -222,8 +324,12 @@ function highlightCodeLine(lineIndex) {
     document.querySelectorAll('.line-number').forEach(el => el.classList.remove('active'));
 
     if (lineIndex != null) {
-        const cl = $(`code-line-${lineIndex}`);
-        const ln = $(`line-num-${lineIndex}`);
+        const key = DOM.algoSelect.value;
+        const map = LINE_MAP[key] || {};
+        const mapped = map[lineIndex] != null ? map[lineIndex] : lineIndex;
+
+        const cl = $(`code-line-${mapped}`);
+        const ln = $(`line-num-${mapped}`);
         if (cl) cl.classList.add('active');
         if (ln) ln.classList.add('active');
     }
