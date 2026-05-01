@@ -143,31 +143,32 @@ const ALGORITHMS = {
 const $ = id => document.getElementById(id);
 
 const DOM = {
-    container:      $('visualization-container'),
-    startBtn:       $('start-btn'),
-    statusText:     $('status-text'),
-    algoSelect:     $('algorithmSelect'),
-    sizeSlider:     $('sizeSlider'),
-    sizeValue:      $('sizeValue'),
-    speedSlider:    $('speedSlider'),
-    speedValue:     $('speedValue'),
-    elCount:        $('el-count'),
-    algoTitle:      $('algo-title'),
-    algoDesc:       $('algo-desc'),
-    timeComp:       $('time-complexity'),
-    spaceComp:      $('space-complexity'),
-    codeBlock:      $('code-block'),
-    lineNumbers:    $('line-numbers'),
-    progressFill:   $('progress-fill'),
-    stepCounter:    $('step-counter'),
-    btnPrev:        $('btn-prev'),
-    btnPlayPause:   $('btn-play-pause'),
-    btnNext:        $('btn-next'),
-    btnMute:        $('btn-mute'),
-    btnHistory:     $('btn-history'),
-    historyModal:   $('history-modal'),
-    closeHistory:   $('close-history'),
-    historyTbody:   $('history-tbody')
+    container: $('visualization-container'),
+    startBtn: $('start-btn'),
+    statusText: $('status-text'),
+    algoSelect: $('algorithmSelect'),
+    sizeSlider: $('sizeSlider'),
+    sizeValue: $('sizeValue'),
+    speedSlider: $('speedSlider'),
+    speedValue: $('speedValue'),
+    elCount: $('el-count'),
+    algoTitle: $('algo-title'),
+    algoDesc: $('algo-desc'),
+    timeComp: $('time-complexity'),
+    spaceComp: $('space-complexity'),
+    codeBlock: $('code-block'),
+    lineNumbers: $('line-numbers'),
+    progressFill: $('progress-fill'),
+    stepCounter: $('step-counter'),
+    btnPrev: $('btn-prev'),
+    btnPlayPause: $('btn-play-pause'),
+    btnStop: $('btn-stop'),
+    btnNext: $('btn-next'),
+    btnMute: $('btn-mute'),
+    btnHistory: $('btn-history'),
+    historyModal: $('history-modal'),
+    closeHistory: $('close-history'),
+    historyTbody: $('history-tbody')
 };
 
 // ── State ───────────────────────────────────────────
@@ -206,10 +207,16 @@ function ensureBars(count, ghost = false) {
     } else {
         for (let i = current; i < count; i++) {
             const bar = document.createElement('div');
-            bar.className = ghost ? 'bar ghost' : 'bar';
+            bar.className = 'bar';
             DOM.container.appendChild(bar);
             barElements.push(bar);
         }
+    }
+
+    // Reset className on ALL bars (clears ghost, sorted, etc.)
+    const cls = ghost ? 'bar ghost' : 'bar';
+    for (let i = 0; i < barElements.length; i++) {
+        barElements[i].className = cls;
     }
 }
 
@@ -217,17 +224,25 @@ function renderArray(array, compared = [], swapped = []) {
     ensureBars(array.length);
     const maxVal = safeMax(array);
 
+    // Get the actual height of the container in pixels
+    const containerHeight = DOM.container.clientHeight || 300;
+    const isMobile = window.innerWidth <= 768;
+
     for (let i = 0; i < array.length; i++) {
         const bar = barElements[i];
-        bar.style.height = `${(array[i] / maxVal) * 100}%`;
+        bar.className = 'bar'; // Ensure ghost/sorted classes are cleared
 
-        if (swapped.includes(i)) {
-            bar.className = 'bar swapped';
-        } else if (compared.includes(i)) {
-            bar.className = 'bar compared';
+        const pct = (array[i] / maxVal);
+
+        if (isMobile) {
+            // Force pixel height on mobile to bypass percentage bugs
+            bar.style.height = `${Math.max(4, Math.round(pct * (containerHeight - 40)))}px`;
         } else {
-            bar.className = 'bar';
+            bar.style.height = `${Math.max(1, pct * 100)}%`;
         }
+
+        if (swapped.includes(i)) bar.classList.add('swapped');
+        else if (compared.includes(i)) bar.classList.add('compared');
     }
 }
 
@@ -263,10 +278,10 @@ function updateProgress() {
 
 // ── Active Line Mapping (backend ID → new code line index) ──
 const LINE_MAP = {
-    bubble:    { 0: 0, 2: 7, 3: 9 },
+    bubble: { 0: 0, 2: 7, 3: 9 },
     selection: { 0: 0, 3: 8, 4: 13 },
-    quick:     { 0: 0, 2: 16, 3: 19, 4: 23 },
-    merge:     { 0: 0, 3: 18, 4: 19, 5: 20 }
+    quick: { 0: 0, 2: 16, 3: 19, 4: 22 },
+    merge: { 0: 0, 3: 18, 4: 18, 5: 19 }
 };
 
 // ── Syntax Highlighting ─────────────────────────────
@@ -379,8 +394,17 @@ function updatePlayerButtons() {
     DOM.btnPrev.disabled = currentStepIndex <= 0;
     DOM.btnNext.disabled = currentStepIndex >= algorithmSteps.length - 1;
     DOM.btnPlayPause.disabled = algorithmSteps.length === 0;
-    DOM.btnPlayPause.textContent = isPlaying ? '⏸' : '▶';
     DOM.startBtn.disabled = isPlaying || isFetching;
+
+    // Stop is active only when steps exist (algorithm running or paused)
+    DOM.btnStop.disabled = algorithmSteps.length === 0;
+
+    // Swap Play / Pause SVG
+    if (isPlaying) {
+        DOM.btnPlayPause.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>';
+    } else {
+        DOM.btnPlayPause.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>';
+    }
 }
 
 function drawCurrentStep() {
@@ -414,6 +438,7 @@ function playAnimation() {
         updateProgress();
         DOM.sizeSlider.disabled = false;
         DOM.algoSelect.disabled = false;
+        DOM.btnStop.disabled = true;
         return;
     }
 
@@ -443,6 +468,7 @@ async function startSorting() {
         algorithmSteps = await Api.fetchSteps(DOM.algoSelect.value, initialArray);
         DOM.statusText.textContent = `Получено ${algorithmSteps.length} шагов — запуск...`;
 
+        DOM.btnStop.disabled = false;
         drawCurrentStep();
         isPlaying = true;
         playAnimation();
@@ -456,6 +482,28 @@ async function startSorting() {
         isFetching = false;
         updatePlayerButtons();
     }
+}
+
+// ── Stop / Reset ────────────────────────────────────
+function stopSorting() {
+    clearTimeout(animationTimeout);
+    isPlaying = false;
+    isFetching = false;
+    currentStepIndex = 0;
+    algorithmSteps = [];
+
+    DOM.startBtn.disabled = false;
+    DOM.algoSelect.disabled = false;
+    DOM.sizeSlider.disabled = false;
+    DOM.btnStop.disabled = true;
+
+    DOM.progressFill.style.width = '0%';
+    DOM.stepCounter.textContent = '';
+    DOM.statusText.textContent = 'Алгоритм остановлен';
+
+    renderArray(initialArray);
+    highlightCodeLine(null);
+    updatePlayerButtons();
 }
 
 // ── Event Listeners ─────────────────────────────────
@@ -492,6 +540,7 @@ DOM.speedSlider.addEventListener('input', e => {
 });
 
 DOM.startBtn.addEventListener('click', startSorting);
+DOM.btnStop.addEventListener('click', stopSorting);
 
 DOM.btnPlayPause.addEventListener('click', () => {
     isPlaying = !isPlaying;
@@ -520,7 +569,11 @@ DOM.btnPrev.addEventListener('click', () => {
 
 DOM.btnMute.addEventListener('click', () => {
     isMuted = !isMuted;
-    DOM.btnMute.textContent = isMuted ? '🔇' : '🔊';
+    if (isMuted) {
+        DOM.btnMute.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19" fill="none"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+    } else {
+        DOM.btnMute.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19" fill="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    }
     DOM.btnMute.classList.toggle('muted', isMuted);
 });
 
@@ -585,6 +638,9 @@ window.addEventListener('keydown', e => {
         case 'KeyM':
             DOM.btnMute.click();
             break;
+        case 'Escape':
+            stopSorting();
+            break;
     }
 });
 
@@ -600,3 +656,16 @@ renderGhostBars(parseInt(DOM.sizeSlider.value));
 setTimeout(() => {
     renderArray(initialArray);
 }, 1200);
+
+// ── Resize: re-render bars when layout changes (mobile ↔ desktop) ──
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (algorithmSteps.length > 0) {
+            drawCurrentStep();
+        } else {
+            renderArray(initialArray);
+        }
+    }, 150);
+});

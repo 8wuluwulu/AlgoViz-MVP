@@ -238,7 +238,7 @@ body {
 }
 
 /* ================================================================
-   MAIN CONTENT
+   MAIN CONTENT — 2-column: sidebar + center
    ================================================================ */
 .main-content {
     display: flex;
@@ -248,6 +248,16 @@ body {
     overflow: hidden;
     position: relative;
     z-index: 1;
+}
+
+/* Center wrapper: viz on top, code below */
+.center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    overflow-y: auto;
 }
 
 /* ================================================================
@@ -505,6 +515,34 @@ body {
     margin: 0 4px;
 }
 
+/* Stop button ────────────────────────────────────── */
+
+/* Disabled: muted & nearly invisible */
+.btn-stop:disabled {
+    opacity: 0.15;
+    background: transparent;
+    border: 1px solid var(--text-muted);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Active: matches indigo play-button style */
+.btn-stop:not(:disabled) {
+    background: var(--accent-glow);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: var(--accent-light);
+    opacity: 1;
+}
+
+/* Hover: red warning accent (must come AFTER :not(:disabled) to win specificity) */
+.btn-stop:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #FCA5A5 !important;
+}
+
 /* ================================================================
    VISUALIZATION SECTION
    ================================================================ */
@@ -623,15 +661,13 @@ body {
 }
 
 /* ================================================================
-   CODE SECTION (Right Panel)
+   CODE SECTION (Below Visualization)
    ================================================================ */
 .code-section {
-    width: 450px;
-    min-width: 400px;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     flex-shrink: 0;
 }
 
@@ -677,8 +713,8 @@ body {
 
 .code-body {
     display: flex;
-    flex: 1;
-    overflow-x: auto;
+    max-height: 350px;
+    overflow-x: hidden;
     overflow-y: auto;
     padding: 16px 0;
     min-width: 0;
@@ -709,14 +745,16 @@ body {
     line-height: 1.8;
     color: var(--text-primary);
     white-space: pre;
-    overflow-x: visible;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 .code-line {
     padding: 1px 8px;
     border-radius: 3px;
     border-left: 2px solid transparent;
-    transition: all var(--duration) var(--ease);
+    transition: all 0.15s var(--ease);
 }
 
 .code-line.active {
@@ -978,8 +1016,7 @@ body {
 }
 
 /* Ensure sidebars always show scrollbar track */
-.control-panel,
-.code-section {
+.control-panel {
     scrollbar-gutter: stable;
 }
 
@@ -987,10 +1024,6 @@ body {
    RESPONSIVE
    ================================================================ */
 @media (max-width: 1100px) {
-    .code-section {
-        display: none;
-    }
-
     .complexity-pills {
         display: none;
     }
@@ -1003,41 +1036,38 @@ body {
     }
 
     .app {
-        height: auto;
+        height: auto !important;
         min-height: 100vh;
-        overflow-y: auto;
+        overflow-y: auto !important;
     }
 
+
+
     .main-content {
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
         padding: 12px;
         gap: 12px;
         overflow: visible;
     }
 
-    /* Sidebars become full-width blocks */
-    .control-panel,
-    .code-section {
+    .center-content {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        overflow-y: visible;
+        width: 100%;
+    }
+
+    .control-panel {
         width: 100%;
         min-width: 100%;
         overflow-y: visible;
         flex-shrink: 0;
         scrollbar-gutter: auto;
-    }
-
-    .control-panel {
         flex-direction: row;
         flex-wrap: wrap;
-    }
-
-    .code-section {
-        display: flex;
-        width: 100%;
-        min-width: 100%;
-    }
-
-    .code-body {
-        overflow-x: auto;
     }
 
     .panel-section {
@@ -1045,13 +1075,42 @@ body {
         min-width: 200px;
     }
 
-    /* Keep visualization prominent */
+    /* ── Rigid height chain + animation isolation ── */
+    /* Prevent the whole page from reacting to bar animations */
     .viz-section {
-        min-height: 350px;
+        height: 400px !important;
+        min-height: 400px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        contain: paint; /* Tells browser: internal changes don't affect outside layout */
     }
 
-    .visualization-container {
-        min-height: 280px;
+    .viz-card {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    #visualization-container {
+        flex: 1 !important;
+        height: 300px !important;
+        min-height: 300px !important;
+        display: flex !important;
+        align-items: flex-end !important;
+        padding-top: 15px !important;   /* Safe zone for translateY(-4px) jump */
+        padding-bottom: 10px !important;
+        overflow: hidden !important;
+    }
+
+    /* Prevent the code section from shifting */
+    .code-section {
+        margin-top: 10px;
+        flex-shrink: 0 !important;
+        max-height: 350px;
+        overflow-y: auto;
     }
 
     /* Top bar adjustments */
